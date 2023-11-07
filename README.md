@@ -18,7 +18,9 @@ Connects to the Bosch Indego Cloud to control your mower.
 
 ## Changelog 
 0.9.21 Complete rebuild from typescript to javascript including code refactoring
+
 0.9.20 Code adopted from @a1development
+
 0.9.0 Initial Beta release
 
 
