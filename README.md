@@ -12,6 +12,8 @@ THIS IS A BETA RELEASE
 
 Connects to the Bosch Indego Cloud to control your mower.
 
+Parts of the code are taken or inspired by the work of a1development: https://github.com/a1development/ioBroker.boschindego
+
 ## Changelog 
 0.9.21 Complete rebuild from typescript to javascript including massive code refactoring
 
