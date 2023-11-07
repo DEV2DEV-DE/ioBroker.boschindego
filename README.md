@@ -4,7 +4,6 @@
 [![NPM version](https://img.shields.io/npm/v/iobroker.boschindego.svg)](https://www.npmjs.com/package/iobroker.boschindego)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.boschindego.svg)](https://www.npmjs.com/package/iobroker.boschindego)
 ![Number of Installations (latest)](https://iobroker.live/badges/boschindego-installed.svg)
-![Number of Installations (stable)](https://iobroker.live/badges/boschindego-stable.svg)
 
 ## boschindego adapter for ioBroker
 THIS IS A BETA RELEASE
