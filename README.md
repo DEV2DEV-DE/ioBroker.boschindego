@@ -25,7 +25,7 @@ Parts of the code are taken or inspired by the work of a1development: https://gi
 ## License
 MIT License
 
-Copyright (c) 2023 DEV2DEV <github@dev2dev.de>
+Copyright (c) 2023 DEV2DEV
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
