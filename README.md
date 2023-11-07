@@ -6,10 +6,6 @@
 ![Number of Installations (latest)](https://iobroker.live/badges/boschindego-installed.svg)
 ![Number of Installations (stable)](https://iobroker.live/badges/boschindego-stable.svg)
 
-[![NPM](https://nodei.co/npm/iobroker.boschindego.png?downloads=true)](https://nodei.co/npm/iobroker.boschindego/)
-
-**Tests:** ![Test and Release](https://github.com/DEV2DEV-DE/ioBroker.boschindego/workflows/Test%20and%20Release/badge.svg)
-
 ## boschindego adapter for ioBroker
 THIS IS A BETA RELEASE
 
