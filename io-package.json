@@ -1,48 +1,21 @@
 {
 	"common": {
 		"name": "boschindego",
-		"version": "0.0.1",
+		"version": "0.9.21",
 		"news": {
-			"0.0.1": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"uk": "Початкова версія",
-				"zh-cn": "首次出版"
+			"0.9.21": {
+				"en": "Refactored and rebuild",
+				"de": "Aus Vorlage neu gebaut"
 			}
 		},
 		"title": "Bosch Indego",
 		"titleLang": {
 			"en": "Bosch Indego",
-			"de": "Bosch Indego",
-			"ru": "Бош Индего",
-			"pt": "Bosch Indego",
-			"nl": "Bosch Indego",
-			"fr": "Bosch Indego",
-			"it": "Bosch Indego",
-			"es": "Indego Bosch",
-			"pl": "Boscha Indego",
-			"uk": "Bosch Indego",
-			"zh-cn": "博世英迪格"
+			"de": "Bosch Indego"
 		},
 		"desc": {
 			"en": "Connects to the Indego cloud to control your mower",
-			"de": "Stellt eine Verbindung zur Indego-Cloud her, um Ihren Mäher zu steuern",
-			"ru": "Подключается к облаку Indego для управления газонокосилкой.",
-			"pt": "Conecta-se à nuvem Indego para controlar seu cortador",
-			"nl": "Maakt verbinding met de Indego-cloud om uw maaier te bedienen",
-			"fr": "Se connecte au cloud Indego pour contrôler votre tondeuse",
-			"it": "Si connette al cloud Indego per controllare il tuo rasaerba",
-			"es": "Se conecta a la nube de Indego para controlar su cortacésped",
-			"pl": "Łączy się z chmurą Indego, aby sterować kosiarką",
-			"uk": "Підключається до хмари Indego для керування газонокосаркою",
-			"zh-cn": "连接到 Indego 云来控制您的割草机"
+			"de": "Stellt eine Verbindung zur Indego-Cloud her, um Ihren Mäher zu steuern"
 		},
 		"authors": [
 			"DEV2DEV-DE <github@dev2dev.de>"
