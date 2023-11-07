@@ -5,11 +5,10 @@
 [![Downloads](https://img.shields.io/npm/dm/iobroker.boschindego.svg)](https://www.npmjs.com/package/iobroker.boschindego)
 ![Number of Installations (latest)](https://iobroker.live/badges/boschindego-installed.svg)
 ![Number of Installations (stable)](https://iobroker.live/badges/boschindego-stable.svg)
-[![Dependency Status](https://img.shields.io/david/a1development/iobroker.boschindego.svg)](https://david-dm.org/a1development/iobroker.boschindego)
 
 [![NPM](https://nodei.co/npm/iobroker.boschindego.png?downloads=true)](https://nodei.co/npm/iobroker.boschindego/)
 
-**Tests:** ![Test and Release](https://github.com/a1development/ioBroker.boschindego/workflows/Test%20and%20Release/badge.svg)
+**Tests:** ![Test and Release](https://github.com/DEV2DEV-DE/ioBroker.boschindego/workflows/Test%20and%20Release/badge.svg)
 
 ## boschindego adapter for ioBroker
 THIS IS A BETA RELEASE
