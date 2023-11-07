@@ -1,17 +1,19 @@
 ![Logo](admin/boschindego.png)
 # ioBroker.boschindego
-
-[![NPM version](https://img.shields.io/npm/v/iobroker.boschindego.svg)](https://www.npmjs.com/package/iobroker.boschindego)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.boschindego.svg)](https://www.npmjs.com/package/iobroker.boschindego)
+[![GitHub license](https://img.shields.io/github/license/DEV2DEV-DE/ioBroker.boschindego)](https://github.com/DEV2DEV-DE/ioBroker.boschindego/LICENSE)
+![GitHub repo size](https://img.shields.io/github/repo-size/DEV2DEV-DE/ioBroker.boschindego)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/DEV2DEV-DE/ioBroker.boschindego)
+![GitHub last commit](https://img.shields.io/github/last-commit/DEV2DEV-DE/ioBroker.boschindego)
+![GitHub issues](https://img.shields.io/github/issues/DEV2DEV-DE/ioBroker.boschindego)
 ![Number of Installations (latest)](https://iobroker.live/badges/boschindego-installed.svg)
 
-## boschindego adapter for ioBroker
+## BoschIndego adapter for ioBroker
 THIS IS A BETA RELEASE
 
 Connects to the Bosch Indego Cloud to control your mower.
 
 ## Changelog 
-0.9.21 Complete rebuild from typescript to javascript including code refactoring
+0.9.21 Complete rebuild from typescript to javascript including massive code refactoring
 
 0.9.20 Code adopted from @a1development
 
