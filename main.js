@@ -504,7 +504,7 @@ class Boschindego extends utils.Adapter {
 						this.log.debug('Result for DELETE: ' + JSON.stringify(res.data));
 					}
 					await this.getAlerts(false);
-				}	
+				}
 				requestDeleteAlerts = false;
 			}
 		} catch (error) {
