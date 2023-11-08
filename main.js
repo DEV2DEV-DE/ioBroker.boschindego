@@ -260,6 +260,7 @@ class Boschindego extends utils.Adapter {
 			};
 			const response = await axios.put(requestUrl, params);
 			this.log.debug('mow res: ' + response.data);
+			await this.setStateAsync('commands.mow', { val: false, ack: true });
 			this.clearAlerts();
 			this.refreshState(false);
 		} catch (error) {
@@ -280,6 +281,7 @@ class Boschindego extends utils.Adapter {
 			};
 			const response = await axios.put(requestUrl, params);
 			this.log.debug('returnToDock res: ' + response.data);
+			await this.setStateAsync('commands.go_home', { val: false, ack: true });
 			this.clearAlerts();
 			this.refreshState(false);
 		} catch (error) {
@@ -300,6 +302,7 @@ class Boschindego extends utils.Adapter {
 			};
 			const response = await axios.put(requestUrl, params);
 			this.log.debug('pause res: ' + response.data);
+			await this.setStateAsync('commands.pause', { val: false, ack: true });
 			this.clearAlerts();
 			this.refreshState(false);
 		} catch (error) {
