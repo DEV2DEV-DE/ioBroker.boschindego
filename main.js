@@ -15,7 +15,7 @@ const commandUri = 'https://api.indego-cloud.iot.bosch-si.com/api/v1/';
 const tokenBaseUri = 'https://prodindego.b2clogin.com/prodindego.onmicrosoft.com/b2c_1a_signup_signin/oauth2/v2.0/token';
 const tokenRequestUri = `${tokenBaseUri}?grant_type=authorization_code&client_id=${clientId}&scope=${scope}&code=`;
 const tokenRefreshUri = `${tokenBaseUri}?grant_type=refresh_token&client_id=${clientId}&scope=${scope}&refresh_token=`;
-const userAgent = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0';
+const userAgent = 'Mozilla/5.0 (iPhone13,2; U; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) Version/10.0 Mobile/15E148 Safari/602.1';
 
 const refreshModes = {
 	normal: 1,
@@ -23,11 +23,14 @@ const refreshModes = {
 	deepSleep: 3
 };
 
-let credentials = {
+const credentials = {
 	access_token: '',
 	valid_until: 0,
-	refresh_token: ''
+	refresh_token: '',
+	context_id: '',
+	resource: ''
 };
+
 let connected = false;
 let alm_sn;
 let currentStateCode = 0;
@@ -169,15 +172,17 @@ class Boschindego extends utils.Adapter {
 	onStateChange(id, state) {
 		if (state) {
 			// The state was changed
-			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-			if (id.includes('mow')) this.mow();
-			if (id.includes('pause'))  this.pause();
-			if (id.includes('go_home')) this.goHome();
-			if (id.includes('refresh_state')) this.refreshState(true);
-			if (id.includes('clear_alerts')) this.clearAlerts();
-			if (id.includes('automatic_state_refresh')) {
-				automaticStateRefresh = !!state.val;
-				if (automaticStateRefresh) refreshMode = refreshModes.normal;
+			if (state.val) {
+				this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+				if (id.includes('mow')) this.mow();
+				if (id.includes('pause'))  this.pause();
+				if (id.includes('go_home')) this.goHome();
+				if (id.includes('refresh_state')) this.refreshState(true);
+				if (id.includes('clear_alerts')) this.clearAlerts();
+				if (id.includes('automatic_state_refresh')) {
+					automaticStateRefresh = !!state.val;
+					if (automaticStateRefresh) refreshMode = refreshModes.normal;
+				}
 			}
 		} else {
 			// The state was deleted
@@ -187,8 +192,8 @@ class Boschindego extends utils.Adapter {
 
 	async refreshAccessToken() {
 		try {
-			const requestUrl = `${tokenRefreshUri}${credentials.refresh_token}&redirect_uri=${redirect}`;
-			const response = await axios.get(requestUrl);
+			const requestUri = `${tokenRefreshUri}${credentials.refresh_token}&redirect_uri=${redirect}`;
+			const response = await axios.get(requestUri);
 			this.log.debug('Response: ' + JSON.stringify(response.data));
 			credentials.access_token = response.data.access_token;
 			credentials.valid_until = response.data.expires_on;
@@ -218,24 +223,35 @@ class Boschindego extends utils.Adapter {
 				// if token is still valid, use saved token to connect
 				if (access_token && refresh_token && valid_until > now) {
 					this.log.debug('Connecting with saved token');
+					const id = await this.getStateAsync('config.context_id');
+					const contextId = (id && id.val != null) ? id.val : '';
+					const res = await this.getStateAsync('config.resource');
+					const resource = (res && res.val != null) ? res.val : '';
+					credentials.context_id = String(contextId);
 					credentials.access_token = String(access_token);
 					credentials.valid_until = valid_until;
 					credentials.refresh_token = String(refresh_token);
+					credentials.resource = String(resource);
 					alm_sn = serial;
 					connected = true;
 					this.setStateAsync('info.connection', { val: true, ack: true });
 					this.setForeignState('system.adapter.' + this.namespace + '.alive', true);
 				} else { // token no longer valid. Get a new one
-					const requestUrl = `${tokenRequestUri}${code}&redirect_uri=${redirect}&${codeVerifier}`;
-					this.log.debug('Getting access token from url: ' + requestUrl);
-					const response = await axios.get(requestUrl);
+					const requestUri = `${tokenRequestUri}${code}&redirect_uri=${redirect}&${codeVerifier}`;
+					this.log.debug('Getting access token from url: ' + requestUri);
+					const response = await axios.get(requestUri);
+					credentials.context_id = response.data.id_token;
 					credentials.access_token = response.data.access_token;
 					credentials.valid_until = response.data.expires_on;
 					credentials.refresh_token = response.data.refresh_token;
+					credentials.resource = response.data.resource;
+					this.setStateAsync('config.context_id', { val: credentials.context_id, ack: true });
 					this.setStateAsync('config.access_token', { val: credentials.access_token, ack: true });
 					this.setStateAsync('config.valid_until', { val: credentials.valid_until, ack: true });
 					this.setStateAsync('config.refresh_token', { val: credentials.refresh_token, ack: true });
+					this.setStateAsync('config.resource', { val: credentials.resource, ack: true });
 					this.log.debug('Connected to Bosch Indego API');
+					this.log.debug(JSON.stringify(response.data));
 					alm_sn = serial;
 					connected = true;
 					this.setStateAsync('info.connection', { val: true, ack: true });
@@ -249,8 +265,9 @@ class Boschindego extends utils.Adapter {
 
 	async mow() {
 		try {
+			await this.setStateAsync('commands.mow', { val: false, ack: true });
 			this.log.info('mow command sent');
-			const requestUrl = `${commandUri}alms/${alm_sn}/state`;
+			const requestUri = `${commandUri}alms/${alm_sn}/state`;
 			const params = {
 				headers: {
 					Authorization: `Bearer ${credentials.access_token}`,
@@ -258,11 +275,8 @@ class Boschindego extends utils.Adapter {
 				},
 				data: { state: 'mow' }
 			};
-			const response = await axios.put(requestUrl, params);
-			this.log.debug('mow res: ' + response.data);
-			await this.setStateAsync('commands.mow', { val: false, ack: true });
-			this.clearAlerts();
-			this.refreshState(false);
+			const response = await axios.put(requestUri, params);
+			this.log.debug('mow res: ' + JSON.stringify(response.data));
 		} catch (error) {
 			this.log.error('error in mow request: ' + error);
 		}
@@ -270,8 +284,9 @@ class Boschindego extends utils.Adapter {
 
 	async goHome() {
 		try {
+			await this.setStateAsync('commands.go_home', { val: false, ack: true });
 			this.log.info('return to dock command sent');
-			const requestUrl = `${commandUri}alms/${alm_sn}/state`;
+			const requestUri = `${commandUri}alms/${alm_sn}/state`;
 			const params = {
 				headers: {
 					Authorization: `Bearer ${credentials.access_token}`,
@@ -279,11 +294,8 @@ class Boschindego extends utils.Adapter {
 				},
 				data: { state: 'returnToDock' }
 			};
-			const response = await axios.put(requestUrl, params);
+			const response = await axios.put(requestUri, params);
 			this.log.debug('returnToDock res: ' + response.data);
-			await this.setStateAsync('commands.go_home', { val: false, ack: true });
-			this.clearAlerts();
-			this.refreshState(false);
 		} catch (error) {
 			this.log.error('error in returnToDock request: ' + error);
 		}
@@ -291,8 +303,9 @@ class Boschindego extends utils.Adapter {
 
 	async pause() {
 		try {
+			await this.setStateAsync('commands.pause', { val: false, ack: true });
 			this.log.info('pause command sent');
-			const requestUrl = `${commandUri}alms/${alm_sn}/state`;
+			const requestUri = `${commandUri}alms/${alm_sn}/state`;
 			const params = {
 				headers: {
 					Authorization: `Bearer ${credentials.access_token}`,
@@ -300,11 +313,8 @@ class Boschindego extends utils.Adapter {
 				},
 				data: { state: 'pause' }
 			};
-			const response = await axios.put(requestUrl, params);
+			const response = await axios.put(requestUri, params);
 			this.log.debug('pause res: ' + response.data);
-			await this.setStateAsync('commands.pause', { val: false, ack: true });
-			this.clearAlerts();
-			this.refreshState(false);
 		} catch (error) {
 			this.log.error('error in pause request: ' + error);
 		}
@@ -475,6 +485,7 @@ class Boschindego extends utils.Adapter {
 
 	async clearAlerts() {
 		try {
+			await this.setStateAsync('commands.clear_alerts', { val: false, ack: true });
 			if (!requestDeleteAlerts) {
 				requestDeleteAlerts = true;
 				this.log.debug('clear alerts');
@@ -659,6 +670,8 @@ class Boschindego extends utils.Adapter {
 		await this.createStateString('config.access_token', 'access_token');
 		await this.createStateNumber('config.valid_until', 'valid_until');
 		await this.createStateString('config.refresh_token', 'refresh_token');
+		await this.createStateString('config.context_id', 'context_id');
+		await this.createStateString('config.resource', 'resource');
 
 		await this.createButton('commands.mow', 'mow', 'Start mowing');
 		await this.createButton('commands.go_home', 'go_home', 'Return to docking station');
@@ -719,6 +732,16 @@ class Boschindego extends utils.Adapter {
 				native: {},
 			});
 		}
+	}
+
+	randomString(length) {
+		let result = '';
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		const charactersLength = characters.length;
+		for (let i = 0; i < length; i += 1) {
+			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+		return result;
 	}
 
 }
