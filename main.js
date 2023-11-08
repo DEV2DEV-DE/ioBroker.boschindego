@@ -23,12 +23,11 @@ const refreshModes = {
 	deepSleep: 3
 };
 
-const credentials = {
+let credentials = {
 	access_token: '',
 	valid_until: 0,
 	refresh_token: ''
 };
-
 let connected = false;
 let alm_sn;
 let currentStateCode = 0;
@@ -39,6 +38,7 @@ let requestRunning = false;
 let requestGetOperationData = false;
 let requestGetMachineData = false;
 let requestGetAlerts = false;
+let requestDeleteAlerts = false;
 let requestGetMap = false;
 let firstRun = true;
 let notMovingCount = 0;
@@ -122,9 +122,14 @@ class Boschindego extends utils.Adapter {
 			if (refreshMode == refreshModes.normal && automaticStateRefresh) {
 				this.refreshState(false);
 			}
-			if (!botIsMoving) {
+			if (botIsMoving == false) {
+				refreshMode = refreshModes.longPoll;
 				const hours = new Date().getHours();
-				refreshMode = (hours >= 22 || hours < 8) ? refreshModes.deepSleep : refreshModes.longPoll;
+				if (hours >= 22 || hours < 8) {
+					refreshMode = refreshModes.deepSleep;
+				} else {
+					refreshMode = refreshModes.longPoll;
+				}
 			} else {
 				refreshMode = refreshModes.normal;
 			}
@@ -146,7 +151,9 @@ class Boschindego extends utils.Adapter {
 		}, 21600000); // 6 hours
 	}
 
-	// Is called when adapter shuts down - callback has to be called under any circumstances!
+	/**
+	 * Is called when adapter shuts down - callback has to be called under any circumstances!
+	 */
 	onUnload(callback) {
 		try {
 			clearInterval(interval1);
@@ -161,7 +168,7 @@ class Boschindego extends utils.Adapter {
 
 	onStateChange(id, state) {
 		if (state) {
-			// The state has been changed
+			// The state was changed
 			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 			if (id.includes('mow')) this.mow();
 			if (id.includes('pause'))  this.pause();
@@ -173,7 +180,7 @@ class Boschindego extends utils.Adapter {
 				if (automaticStateRefresh) refreshMode = refreshModes.normal;
 			}
 		} else {
-			// The state has been deleted
+			// The state was deleted
 			this.log.info(`state ${id} deleted`);
 		}
 	}
@@ -214,6 +221,8 @@ class Boschindego extends utils.Adapter {
 					credentials.access_token = String(access_token);
 					credentials.valid_until = valid_until;
 					credentials.refresh_token = String(refresh_token);
+					alm_sn = serial;
+					connected = true;
 					this.setStateAsync('info.connection', { val: true, ack: true });
 					this.setForeignState('system.adapter.' + this.namespace + '.alive', true);
 				} else { // token no longer valid. Get a new one
@@ -227,11 +236,11 @@ class Boschindego extends utils.Adapter {
 					this.setStateAsync('config.valid_until', { val: credentials.valid_until, ack: true });
 					this.setStateAsync('config.refresh_token', { val: credentials.refresh_token, ack: true });
 					this.log.debug('Connected to Bosch Indego API');
+					alm_sn = serial;
+					connected = true;
 					this.setStateAsync('info.connection', { val: true, ack: true });
 					this.setForeignState('system.adapter.' + this.namespace + '.alive', true);
 				}
-				alm_sn = serial;
-				connected = true;
 			}
 		} catch (error) {
 			this.log.error('Error connecting Bosch API: ' + error);
@@ -310,7 +319,7 @@ class Boschindego extends utils.Adapter {
 		}
 		if (connected && (!requestRunning || force)) {
 			requestRunning = true;
-			let timeout = 30000; // 30 seconds
+			let timeout = 30000;
 			const last = (currentStateCode == undefined) ? 0 : currentStateCode;
 			let forceUrl = '';
 			if (refreshMode == refreshModes.normal || force) {
@@ -318,7 +327,7 @@ class Boschindego extends utils.Adapter {
 				forceUrl = '?cached=false&force=true';
 			} else {
 				this.log.debug('refresh state - longPoll - refreshMode: ' + refreshMode);
-				timeout = 3600000; // 1 hour
+				timeout = 3650000;
 				forceUrl = `?longpoll=true&timeout=3600&last=${last}`;
 			}
 			try {
@@ -373,13 +382,13 @@ class Boschindego extends utils.Adapter {
 					await this.getMap();
 					this.createMapWithIndego(res.data.svg_xPos, res.data.svg_yPos);
 				}
-			} catch (error) {
-				this.log.debug('Error in state request: ' + error);
+			} catch (err) {
+				this.log.debug('Error in state request: ' + err);
 				requestRunning = false;
-				if (typeof error.response !== 'undefined' && error.response.status == 401) {
+				if (typeof err.response !== 'undefined' && err.response.status == 401) {
 					// expected behavior after auth is expired -> reconnect
 					connected = false;
-				} else if ((typeof error.response !== 'undefined' && error.response.status == 504) || (typeof error.code !== 'undefined' && error.code == 'ECONNRESET')) {
+				} else if ((typeof err.response !== 'undefined' && err.response.status == 504) || (typeof err.code !== 'undefined' && err.code == 'ECONNRESET')) {
 					// expected behavior by longpoll requests
 					this.log.debug('planned longpoll timeout');
 				} else {
@@ -462,26 +471,34 @@ class Boschindego extends utils.Adapter {
 	}
 
 	async clearAlerts() {
-		this.log.debug('clear alerts');
 		try {
-			const alertArray = await this.getAlerts();
-			if (alertArray.length > 0) {
-				for (const alert of alertArray) {
-					const requestUri =  `${commandUri}alerts/${alert.alert_id}`;
-					await axios.delete(requestUri, {
-						headers: {
-							Authorization: `Bearer ${credentials.access_token}`,
-							'User-Agent': userAgent
-						}
-					});
-				}
+			if (!requestDeleteAlerts) {
+				requestDeleteAlerts = true;
+				this.log.debug('clear alerts');
+				const alertArray = await this.getAlerts(false);
+				this.log.debug('[Alerts to be deleted] ' + JSON.stringify(alertArray));
+				if (alertArray.length > 0) {
+					for (const alert of alertArray) {
+						this.log.debug('Deleting alert: ' + alert.alert_id);
+						const requestUri =  `${commandUri}alerts/${alert.alert_id}`;
+						const res = await axios.delete(requestUri, {
+							headers: {
+								Authorization: `Bearer ${credentials.access_token}`,
+								'User-Agent': userAgent
+							}
+						});
+						this.log.debug('Result for DELETE: ' + JSON.stringify(res.data));
+					}
+					await this.getAlerts(false);
+				}	
+				requestDeleteAlerts = false;
 			}
 		} catch (error) {
 			this.log.error('error in clear alerts request: ' + error);
 		}
 	}
 
-	async getAlerts() {
+	async getAlerts(logResult = true) {
 		try {
 			if (!requestGetAlerts) {
 				requestGetAlerts = true;
@@ -493,8 +510,7 @@ class Boschindego extends utils.Adapter {
 						'User-Agent': userAgent
 					}
 				});
-				this.log.debug('[Alert Data] ' + JSON.stringify(res.data));
-				requestGetAlerts = false;
+				if (logResult) this.log.debug('[Alert Data] ' + JSON.stringify(res.data));
 				const alertArray = res.data;
 				await this.setStateAsync('alerts.list', { val: JSON.stringify(alertArray), ack: true });
 				await this.setStateAsync('alerts.count', { val: alertArray.length, ack: true });
@@ -505,8 +521,15 @@ class Boschindego extends utils.Adapter {
 					await this.setStateAsync('alerts.last.date', { val: alertArray[0].date, ack: true });
 					await this.setStateAsync('alerts.last.message', { val: alertArray[0].message, ack: true });
 					await this.setStateAsync('alerts.last.flag', { val: alertArray[0].flag, ack: true });
+				} else {
+					await this.setStateAsync('alerts.last.error_code', { val: '0', ack: true });
+					await this.setStateAsync('alerts.last.headline', { val: '', ack: true });
+					await this.setStateAsync('alerts.last.date', { val: '', ack: true });
+					await this.setStateAsync('alerts.last.message', { val: '', ack: true });
+					await this.setStateAsync('alerts.last.flag', { val: '', ack: true });
 				}
-				return res;
+				requestGetAlerts = false;
+				return alertArray;
 			} else {
 				this.log.debug('skipped - alerts request still running');
 			}
