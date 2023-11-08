@@ -23,7 +23,7 @@ const refreshModes = {
 	deepSleep: 3
 };
 
-let credentials = {
+const credentials = {
 	access_token: '',
 	valid_until: 0,
 	refresh_token: ''
