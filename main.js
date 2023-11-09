@@ -78,12 +78,34 @@ const stateCodes = [
 	{id: 774, status: 'Returning to dock', moving: true},
 	{id: 775, status: 'Returning to dock - Lawn complete', moving: true},
 	{id: 776, status: 'Returning to dock - Relocalising', moving: true},
+	{id: 1005, status: 'Connection to dockingstation failed', moving: false},
 	{id: 1025, status: 'Diagnostic mode', moving: false},
 	{id: 1026, status: 'EOL Mode', moving: false},
+	{id: 1027, status: 'Service Requesting Status', moving: false},
+	{id: 1038, status: 'Mower immobilized', moving: false},
 	{id: 1281, status: 'Software update', moving: false},
 	{id: 1537, status: 'Low power mode', moving: false},
-	{id: 64513, status: 'Docked - Waking up', moving: false} //Angehalten???
+	{id: 64513, status: 'Sleeping', moving: false},
+	{id: 99999, status: 'Offline', moving: false},
 ];
+
+const modelNames = {
+	'3600HA2300': 'Indego 1000',
+	'3600HA2301': 'Indego 1200',
+	'3600HA2302': 'Indego 1100',
+	'3600HA2303': 'Indego 13C',
+	'3600HA2304': 'Indego 10C',
+	'3600HB0100': 'Indego 350',
+	'3600HB0101': 'Indego 400',
+	'3600HB0102': 'Indego S+ 350 1gen',
+	'3600HB0103': 'Indego S+ 400 1gen',
+	'3600HB0105': 'Indego S+ 350 2gen',
+	'3600HB0106': 'Indego S+ 400 2gen',
+	'3600HB0302': 'Indego S+ 500',
+	'3600HB0301': 'Indego M+ 700 1gen',
+	'3600HB0303': 'Indego M+ 700 2gen',
+};
+
 
 class Boschindego extends utils.Adapter {
 
@@ -198,10 +220,11 @@ class Boschindego extends utils.Adapter {
 			credentials.access_token = response.data.access_token;
 			credentials.valid_until = response.data.expires_on;
 			credentials.refresh_token = response.data.refresh_token;
+			credentials.resource = response.data.resource;
 			this.setStateAsync('config.access_token', { val: credentials.access_token, ack: true });
 			this.setStateAsync('config.valid_until', { val: credentials.valid_until, ack: true });
 			this.setStateAsync('config.refresh_token', { val: credentials.refresh_token, ack: true });
-			this.setStateAsync('config.context_id', { val: JSON.stringify(response.data), ack: true });
+			this.setStateAsync('config.resource', { val: credentials.resource, ack: true });
 			this.log.debug('Access token has been refreshed');
 		} catch (error) {
 			console.error('Error in refreshAccessToken: ', error);
@@ -427,6 +450,7 @@ class Boschindego extends utils.Adapter {
 				await this.setStateAsync('machine.service_counter', { val: res.data.service_counter, ack: true });
 				await this.setStateAsync('machine.needs_service', { val: res.data.needs_service, ack: true });
 				await this.setStateAsync('machine.bare_tool_number', { val: res.data.bareToolnumber, ack: true });
+				await this.setStateAsync('machine.model', { val: modelNames[res.data.bareToolnumber], ack: true });
 				await this.setStateAsync('machine.alm_firmware_version', { val: res.data.alm_firmware_version, ack: true });
 			} catch (error) {
 				this.log.error('error in machine request: ' + error);
@@ -640,6 +664,7 @@ class Boschindego extends utils.Adapter {
 		await this.createStateBoolean('machine.needs_service', 'needs_service');
 		await this.createStateString('machine.alm_mode', 'alm_mode');
 		await this.createStateString('machine.bare_tool_number', 'bareToolnumber');
+		await this.createStateString('machine.model', 'model name');
 		await this.createStateString('machine.alm_firmware_version', 'alm_firmware_version');
 		await this.createStateNumber('operationData.battery.voltage', 'voltage', 'V');
 		await this.createStateNumber('operationData.battery.cycles', 'cycles');
@@ -662,7 +687,6 @@ class Boschindego extends utils.Adapter {
 		await this.createStateString('config.access_token', 'access_token');
 		await this.createStateNumber('config.valid_until', 'valid_until');
 		await this.createStateString('config.refresh_token', 'refresh_token');
-		await this.createStateString('config.context_id', 'context_id');
 		await this.createStateString('config.resource', 'resource');
 
 		await this.createButton('commands.mow', 'mow', 'Start mowing');
