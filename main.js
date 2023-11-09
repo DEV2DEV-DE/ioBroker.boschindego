@@ -8,7 +8,7 @@ const utils = require('@iobroker/adapter-core');
 const axios = require('axios').default;
 
 const clientId = '65bb8c9d-1070-4fb4-aa95-853618acc876';
-const scope = 'openid%20offline_access%20https://prodindego.onmicrosoft.com/indego-mobile-api/Indego.Mower.User';
+const scope = encodeURI('openid offline_access https://prodindego.onmicrosoft.com/indego-mobile-api/Indego.Mower.User');
 const codeVerifier = 'code_verifier=ThisIsntRandomButItNeedsToBe43CharactersLong';
 const redirect = 'com.bosch.indegoconnect://login';
 const commandUri = 'https://api.indego-cloud.iot.bosch-si.com/api/v1/';
