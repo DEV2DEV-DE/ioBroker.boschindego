@@ -273,7 +273,7 @@ class Boschindego extends utils.Adapter {
 				},
 				data: { state: 'mow' }
 			};
-			const response = await axios.put(requestUri, params);
+			axios.put(requestUri, params);
 		} catch (error) {
 			this.log.error('error in mow request: ' + error);
 		}
@@ -293,7 +293,7 @@ class Boschindego extends utils.Adapter {
 				},
 				data: { state: 'returnToDock' }
 			};
-			const response = await axios.put(requestUri, params);
+			axios.put(requestUri, params);
 		} catch (error) {
 			this.log.error('error in returnToDock request: ' + error);
 		}
@@ -313,7 +313,7 @@ class Boschindego extends utils.Adapter {
 				},
 				data: { state: 'pause' }
 			};
-			const response = await axios.put(requestUri, params);
+			axios.put(requestUri, params);
 		} catch (error) {
 			this.log.error('error in pause request: ' + error);
 		}
@@ -497,7 +497,7 @@ class Boschindego extends utils.Adapter {
 						this.log.debug('Result for DELETE: ' + JSON.stringify(res.data));
 					}
 					await this.getAlerts(false);
-				}	
+				}
 				requestDeleteAlerts = false;
 			}
 		} catch (error) {
@@ -731,7 +731,7 @@ class Boschindego extends utils.Adapter {
 		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		const charactersLength = characters.length;
 		for (let i = 0; i < length; i += 1) {
-		  result += characters.charAt(Math.floor(Math.random() * charactersLength));
+			result += characters.charAt(Math.floor(Math.random() * charactersLength));
 		}
 		return result;
 	}
