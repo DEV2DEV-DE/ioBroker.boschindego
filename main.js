@@ -326,6 +326,7 @@ class Boschindego extends utils.Adapter {
 		this.log.debug('BotIsMoving: ' + botIsMoving);
 		this.log.debug('CurrentStateCode: ' + currentStateCode);
 
+		await this.setStateAsync('commands.refresh_state', { val: false, ack: true });
 		if (connected && (botIsMoving || force || (currentStateCode == 257 || currentStateCode == 260))) { // if bot moves or is charging, get data. Prevents waking up the bot
 			this.getOperatingData();
 		}
