@@ -270,6 +270,7 @@ class Boschindego extends utils.Adapter {
 			const requestUri = `${commandUri}alms/${alm_sn}/state`;
 			const params = {
 				headers: {
+					'Content-Type': 'application/json',
 					Authorization: `Bearer ${credentials.access_token}`,
 					'User-Agent': userAgent
 				},
