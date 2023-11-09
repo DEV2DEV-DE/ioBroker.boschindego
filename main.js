@@ -149,8 +149,7 @@ class Boschindego extends utils.Adapter {
 			}
 			if (botIsMoving == false) {
 				refreshMode = refreshModes.longPoll;
-				const hours = new Date().getHours();
-				if (hours >= 22 || hours < 8) {
+				if (this.isNightTime()) {
 					refreshMode = refreshModes.deepSleep;
 				} else {
 					refreshMode = refreshModes.longPoll;
@@ -431,7 +430,7 @@ class Boschindego extends utils.Adapter {
 		}
 	}
 
-	async getMachine() {
+	async getMachineData() {
 		if (!requestGetMachineData) {
 			this.log.debug('Request API for machine data');
 			requestGetMachineData = true;
@@ -614,15 +613,14 @@ class Boschindego extends utils.Adapter {
 	async stateCodeChange(state) {
 		this.log.debug('State: ' + state);
 		if (currentStateCode != state) {
-			this.getMachine();
+			this.getMachineData();
 			if (state == 260) {
 				firstRun = true; // get current location when returned to dock
 			}
 		}
 		if (botIsMoving == false) { //state == 258
 			refreshMode = refreshModes.longPoll;
-			const hours = new Date().getHours();
-			if (hours >= 22 || hours < 8) {
+			if (this.isNightTime()) {
 				refreshMode = refreshModes.deepSleep;
 			}
 		} else {
@@ -750,11 +748,16 @@ class Boschindego extends utils.Adapter {
 		}
 	}
 
-	randomString(length) {
+	isNightTime() {
+		const hours = new Date().getHours();
+		return (hours >= 22 || hours < 8);
+	}
+
+	createRandomString(length) {
 		let result = '';
 		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		const charactersLength = characters.length;
-		for (let i = 0; i < length; i += 1) {
+		for (let i = 0; i < length; i++) {
 			result += characters.charAt(Math.floor(Math.random() * charactersLength));
 		}
 		return result;
