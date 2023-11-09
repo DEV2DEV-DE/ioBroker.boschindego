@@ -272,12 +272,12 @@ class Boschindego extends utils.Adapter {
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${credentials.access_token}`,
-					'User-Agent': userAgent
+					'User-Agent': userAgent,
+					'x-im-context-id': credentials.resource
 				},
 				data: { state: 'mow' }
 			};
 			const response = await axios.put(requestUri, params);
-			this.log.debug('mow res: ' + JSON.stringify(response.data));
 		} catch (error) {
 			this.log.error('error in mow request: ' + error);
 		}
@@ -290,13 +290,14 @@ class Boschindego extends utils.Adapter {
 			const requestUri = `${commandUri}alms/${alm_sn}/state`;
 			const params = {
 				headers: {
+					'Content-Type': 'application/json',
 					Authorization: `Bearer ${credentials.access_token}`,
-					'User-Agent': userAgent
+					'User-Agent': userAgent,
+					'x-im-context-id': credentials.resource
 				},
 				data: { state: 'returnToDock' }
 			};
 			const response = await axios.put(requestUri, params);
-			this.log.debug('returnToDock res: ' + response.data);
 		} catch (error) {
 			this.log.error('error in returnToDock request: ' + error);
 		}
@@ -309,13 +310,14 @@ class Boschindego extends utils.Adapter {
 			const requestUri = `${commandUri}alms/${alm_sn}/state`;
 			const params = {
 				headers: {
+					'Content-Type': 'application/json',
 					Authorization: `Bearer ${credentials.access_token}`,
-					'User-Agent': userAgent
+					'User-Agent': userAgent,
+					'x-im-context-id': credentials.resource
 				},
 				data: { state: 'pause' }
 			};
 			const response = await axios.put(requestUri, params);
-			this.log.debug('pause res: ' + response.data);
 		} catch (error) {
 			this.log.error('error in pause request: ' + error);
 		}
@@ -505,7 +507,7 @@ class Boschindego extends utils.Adapter {
 						this.log.debug('Result for DELETE: ' + JSON.stringify(res.data));
 					}
 					await this.getAlerts(false);
-				}
+				}	
 				requestDeleteAlerts = false;
 			}
 		} catch (error) {
@@ -737,10 +739,10 @@ class Boschindego extends utils.Adapter {
 
 	randomString(length) {
 		let result = '';
-		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		const charactersLength = characters.length;
 		for (let i = 0; i < length; i += 1) {
-			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		  result += characters.charAt(Math.floor(Math.random() * charactersLength));
 		}
 		return result;
 	}
