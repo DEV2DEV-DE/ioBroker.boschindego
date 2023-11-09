@@ -226,7 +226,6 @@ class Boschindego extends utils.Adapter {
 					this.log.debug('Connecting with saved token');
 					const res = await this.getStateAsync('config.resource');
 					const resource = (res && res.val != null) ? res.val : '';
-					credentials.context_id = String(contextId);
 					credentials.access_token = String(access_token);
 					credentials.valid_until = valid_until;
 					credentials.refresh_token = String(refresh_token);
