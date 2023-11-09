@@ -201,6 +201,7 @@ class Boschindego extends utils.Adapter {
 			this.setStateAsync('config.access_token', { val: credentials.access_token, ack: true });
 			this.setStateAsync('config.valid_until', { val: credentials.valid_until, ack: true });
 			this.setStateAsync('config.refresh_token', { val: credentials.refresh_token, ack: true });
+			this.setStateAsync('config.context_id', { val: JSON.stringify(response.data), ack: true });
 			this.log.debug('Access token has been refreshed');
 		} catch (error) {
 			console.error('Error in refreshAccessToken: ', error);
@@ -223,8 +224,6 @@ class Boschindego extends utils.Adapter {
 				// if token is still valid, use saved token to connect
 				if (access_token && refresh_token && valid_until > now) {
 					this.log.debug('Connecting with saved token');
-					const id = await this.getStateAsync('config.context_id');
-					const contextId = (id && id.val != null) ? id.val : '';
 					const res = await this.getStateAsync('config.resource');
 					const resource = (res && res.val != null) ? res.val : '';
 					credentials.context_id = String(contextId);
@@ -240,12 +239,10 @@ class Boschindego extends utils.Adapter {
 					const requestUri = `${tokenRequestUri}${code}&redirect_uri=${redirect}&${codeVerifier}`;
 					this.log.debug('Getting access token from url: ' + requestUri);
 					const response = await axios.get(requestUri);
-					credentials.context_id = response.data.id_token;
 					credentials.access_token = response.data.access_token;
 					credentials.valid_until = response.data.expires_on;
 					credentials.refresh_token = response.data.refresh_token;
 					credentials.resource = response.data.resource;
-					this.setStateAsync('config.context_id', { val: credentials.context_id, ack: true });
 					this.setStateAsync('config.access_token', { val: credentials.access_token, ack: true });
 					this.setStateAsync('config.valid_until', { val: credentials.valid_until, ack: true });
 					this.setStateAsync('config.refresh_token', { val: credentials.refresh_token, ack: true });
@@ -401,14 +398,9 @@ class Boschindego extends utils.Adapter {
 			} catch (err) {
 				this.log.debug('Error in state request: ' + err);
 				requestRunning = false;
-				if (typeof err.response !== 'undefined' && err.response.status == 401) {
-					// expected behavior after auth is expired -> reconnect
-					connected = false;
-				} else if ((typeof err.response !== 'undefined' && err.response.status == 504) || (typeof err.code !== 'undefined' && err.code == 'ECONNRESET')) {
+				if ((typeof err.response !== 'undefined' && err.response.status == 504) || (typeof err.code !== 'undefined' && err.code == 'ECONNRESET')) {
 					// expected behavior by longpoll requests
 					this.log.debug('planned longpoll timeout');
-				} else {
-					connected = false;
 				}
 			}
 		} else if (requestRunning == true) {
@@ -438,7 +430,6 @@ class Boschindego extends utils.Adapter {
 				await this.setStateAsync('machine.alm_firmware_version', { val: res.data.alm_firmware_version, ack: true });
 			} catch (error) {
 				this.log.error('error in machine request: ' + error);
-				connected = false;
 				requestGetMachineData = false;
 			}
 		} else {
@@ -478,7 +469,6 @@ class Boschindego extends utils.Adapter {
 				await this.setStateAsync('operationData.garden.map_cell_size', { val: res.data.garden.map_cell_size, ack: true });
 			} catch (error) {
 				this.log.error('error in operatingData request: ' + error);
-				connected = false;
 				requestGetOperationData = false;
 			}
 		} else {
@@ -577,7 +567,6 @@ class Boschindego extends utils.Adapter {
 			}
 		} catch (error) {
 			this.log.error('error in map request: ' + error);
-			connected = false;
 			requestGetMap = false;
 		}
 	}
