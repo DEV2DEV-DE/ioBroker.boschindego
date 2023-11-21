@@ -25,7 +25,7 @@
 		"license": "MIT",
 		"platform": "Javascript/Node.js",
 		"main": "main.js",
-		"icon": "boschindego.png",
+		"icon": "logo.png",
 		"enabled": true,
 		"extIcon": "https://raw.githubusercontent.com/DEV2DEV-DE/ioBroker.boschindego/main/logo.png",
 		"readme": "https://github.com/DEV2DEV-DE/ioBroker.boschindego/blob/main/README.md",
