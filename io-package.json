@@ -27,7 +27,7 @@
 		"main": "main.js",
 		"icon": "boschindego.png",
 		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/DEV2DEV-DE/ioBroker.boschindego/main/admin/boschindego.png",
+		"extIcon": "https://raw.githubusercontent.com/DEV2DEV-DE/ioBroker.boschindego/main/logo.png",
 		"readme": "https://github.com/DEV2DEV-DE/ioBroker.boschindego/blob/main/README.md",
 		"loglevel": "info",
 		"mode": "daemon",
