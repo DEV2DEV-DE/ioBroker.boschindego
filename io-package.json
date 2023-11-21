@@ -5,16 +5,43 @@
 		"news": {
 			"0.9.21": {
 				"en": "Refactored and rebuild",
-				"de": "Aus Vorlage neu gebaut"
+				"de": "Aus Vorlage neu gebaut",
+				"ru": "Refactored and rebuild",
+				"pt": "Refactored and rebuild",
+				"nl": "Refactored and rebuild",
+				"fr": "Refactored and rebuild",
+				"it": "Refactored and rebuild",
+				"es": "Refactored and rebuild",
+				"pl": "Refactored and rebuild",
+				"uk": "Refactored and rebuild",
+				"zh-cn": "Refactored and rebuild"
 			}
 		},
 		"titleLang": {
 			"en": "Bosch Indego",
-			"de": "Bosch Indego"
+			"de": "Bosch Indego",
+			"ru": "Bosch Indego",
+			"pt": "Bosch Indego",
+			"nl": "Bosch Indego",
+			"fr": "Bosch Indego",
+			"it": "Bosch Indego",
+			"es": "Bosch Indego",
+			"pl": "Bosch Indego",
+			"uk": "Bosch Indego",
+			"zh-cn": "Bosch Indego"
 		},
 		"desc": {
 			"en": "Connects to the Indego cloud to control your mower",
-			"de": "Stellt eine Verbindung zur Indego-Cloud her, um Ihren Mäher zu steuern"
+			"de": "Stellt eine Verbindung zur Indego-Cloud her, um Ihren Mäher zu steuern",
+			"ru": "Connects to the Indego cloud to control your mower",
+			"pt": "Connects to the Indego cloud to control your mower",
+			"nl": "Connects to the Indego cloud to control your mower",
+			"fr": "Connects to the Indego cloud to control your mower",
+			"it": "Connects to the Indego cloud to control your mower",
+			"es": "Connects to the Indego cloud to control your mower",
+			"pl": "Connects to the Indego cloud to control your mower",
+			"uk": "Connects to the Indego cloud to control your mower",
+			"zh-cn": "Connects to the Indego cloud to control your mower"
 		},
 		"authors": [
 			"DEV2DEV-DE <github@dev2dev.de>"
