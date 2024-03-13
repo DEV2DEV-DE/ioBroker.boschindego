@@ -7,6 +7,10 @@
 ![GitHub issues](https://img.shields.io/github/issues/DEV2DEV-DE/ioBroker.boschindego)
 ![Number of Installations (latest)](https://iobroker.live/badges/boschindego-installed.svg)
 
+## Repository will be archived
+Due to changes in the API the adapter no longer works.
+Therefore the repository will be archived. There are alternatives available.
+
 ## BoschIndego adapter for ioBroker
 THIS IS A BETA RELEASE
 
